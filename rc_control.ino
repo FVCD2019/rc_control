@@ -13,16 +13,15 @@
  Connect LB_IS & RB_IS to UNO digital 3
  */
 //#define DEBUG
-#define DEF_SPEED 92 
+#define DEF_SPEED 100 
+#define DEF_STEER 92 
 #define throttle2_speed 6     //M2 Speed Control
 #define throttle2_di 7     //M2 Direction Control
 #define steer_pin 9
 
 Servo servo;
 int steer_val = DEF_STEER;
-int counter=0;
-String cmd_str = "";
-int encoder_val = 0;
+int speed_val = DEF_SPEED;
 
 void stop(void)                    //Stop
 { 
@@ -38,8 +37,8 @@ void move(int speed, int steer)
   digitalWrite(throttle2_di,LOW);
  }
  else{
-  analogWrite (throttle2_speed,speed);    
-  digitalWrite(throttle2_di,LOW);
+  analogWrite (throttle2_speed,speed);    0,
+  digitalWrite(throttle2_di,HIGH);
  }
  
  if(steer < 20)
@@ -47,7 +46,7 @@ void move(int speed, int steer)
  else if(steer > 165)
   steer = 165;
  
- servo.attach(steer);
+ servo.write(steer);
  
 }
 
@@ -71,9 +70,11 @@ void setup(void)
   pinMode(6, OUTPUT);
   pinMode(7, OUTPUT); 
   Serial.begin(19200);      //Set Baud Rate
-  //Serial.println("Run keyboard control"); 
+  //Serial.println("Run keyboard control");
+  analogWrite (throttle2_speed,0); 
   digitalWrite(throttle2_speed,HIGH);
-  servo.attach(steer_val);
+  servo.attach(steer_pin);
+  servo.write(steer_val);
   //pinMode(2,INPUT);
   //pinMode(3,INPUT);
 } 
@@ -84,13 +85,9 @@ void loop(void)
    //ex : 200,150,
     speed_val = Serial.parseInt();
     steer_val = Serial.parseInt();
-    Serial.read();
-    
+    int buf = Serial.read();
     move(speed_val, steer_val);
-   
+    Serial.println(speed_val);
     Serial.println(steer_val);
-    Serial.println(encoder_val);
   }
-
-  delay(5);
 }
